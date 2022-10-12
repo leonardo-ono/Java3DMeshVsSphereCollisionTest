@@ -55,7 +55,7 @@ public class View extends JPanel {
             View view = new View();
             view.setPreferredSize(new Dimension(800, 600));
             JFrame frame = new JFrame();
-            frame.setTitle("Java 3D Mesh vs Sphere Collision Test");
+            frame.setTitle("Java 3D Mesh vs Sphere Collision - NEW");
             frame.getContentPane().add(view);
             frame.setResizable(false);
             frame.pack();

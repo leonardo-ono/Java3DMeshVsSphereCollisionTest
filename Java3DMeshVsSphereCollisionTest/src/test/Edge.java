@@ -78,7 +78,8 @@ public class Edge {
         response.getContactPoint().set(vTmp1);
         response.getContactNormal().set(vTmp2);
         response.getContactNormal().normalize();
-        response.getContactNormal().scale(sphere.getRadius() - vTmp2.getLength());
+        response.getContactNormal().scale(sphere.getRadius() - vTmp2.getLength() + 0.000000001);
+        response.setIsEdge(true);
         
         return response;
     }

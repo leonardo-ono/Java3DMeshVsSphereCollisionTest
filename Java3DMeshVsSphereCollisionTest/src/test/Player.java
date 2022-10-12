@@ -31,6 +31,8 @@ public class Player {
     }
 
     public void update() {
+        final double maxSpeed = 0.1;
+        
         if (Input.isKeyPressed(KeyEvent.VK_LEFT)) {
             //sphere.getPosition().x -= 0.03;
             angle -= 0.025;
@@ -41,11 +43,11 @@ public class Player {
         }
         double speed = 0;
         if (Input.isKeyPressed(KeyEvent.VK_UP)) {
-            speed = -0.1;
+            speed = -maxSpeed;
             //sphere.getPosition().y += 0.03;
         }
         else if (Input.isKeyPressed(KeyEvent.VK_DOWN)) {
-            speed = 0.1;
+            speed = maxSpeed;
             //sphere.getPosition().y -= 0.03;
         }
         velocity.x = 0;
@@ -75,13 +77,14 @@ public class Player {
         
         if (Input.isKeyPressed(KeyEvent.VK_SPACE)) {
             velocity.y += 0.05;
-            if (velocity.y > 0.2) {
-                velocity.y = 0.2;
+            if (velocity.y > 0.5) {
+                velocity.y = 0.5;
             }
         }
         
         // gravity
         velocity.y -= 0.005;
+        if (velocity.y < -0.5) velocity.y = -0.5;
     }
     
     public void draw3D(Graphics2D g, double scale) {

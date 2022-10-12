@@ -56,6 +56,8 @@ public class Face {
     private final Vec3 vTmp = new Vec3();
     
     public Response checkCollision(Sphere sphere) {
+        response.setIsEdge(false);
+        
         vTmp.set(sphere.getPosition()); // contact point in the triangle plane
         vTmp.sub(points.get(0));
         double dot = vTmp.dot(normal);
@@ -75,7 +77,7 @@ public class Face {
         response.setCollides(Math.abs(dot) <= sphere.getRadius());
         response.getContactPoint().set(vTmp);
         response.getContactNormal().set(normal);
-        response.getContactNormal().scale(sphere.getRadius() - dot);
+        response.getContactNormal().scale(sphere.getRadius() - dot + 0.000000001);
         
         return response;
     }

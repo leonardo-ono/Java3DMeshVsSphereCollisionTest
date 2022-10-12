@@ -2,6 +2,7 @@ package test;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,10 +16,6 @@ public class World {
 
     private final List<Face> faces = new ArrayList<>();
     private final Player player = new Player();
-
-    private final List<Response> collidedResponses = new ArrayList<>();
-    private final Vec3 resultPush = new Vec3();
-    
     private MeshLoader terrain;
     
     public World() {
@@ -67,40 +64,62 @@ public class World {
         
     }
     
+    private final Vec3 playerPreviousPosition = new Vec3();
+    private final Vec3 resultPush = new Vec3();
+    
     public void update() {
-                
         player.update();
+
+        // update player position
+        player.getCollider().getPosition().add(player.getVelocity());          
+        
+        // save player position
+        playerPreviousPosition.set(player.getCollider().getPosition());
+        
+        boolean keepChecking = true;
         
         // detect collision with all polygons
-        collidedResponses.clear();
-        for (Face face : faces) {
-            Response response = face.checkCollision(player.getCollider());
-            if (response.isCollides()) {
-                collidedResponses.add(response);
+        outer:
+        while (keepChecking) {
+            keepChecking = false;
+            
+            // give priority for non edge collisions first
+            for (Face face : faces) {
+                Response response = face.checkCollision(player.getCollider());
+                if (response.isCollides() 
+                        && response.getContactNormal().getLength() > 0 
+                            && !response.isEdge()) {
+                    
+                    Vec3 contactNormal = response.getContactNormal();
+                    player.getCollider().getPosition().add(contactNormal);
+                    keepChecking = true;
+                    continue outer;
+                }
+            }
+            
+            // check the edge collisions
+            for (Face face : faces) {
+                Response response = face.checkCollision(player.getCollider());
+                if (response.isCollides() 
+                        && response.getContactNormal().getLength() > 0 
+                            && response.isEdge()) {
+                    
+                    Vec3 contactNormal = response.getContactNormal();
+                    player.getCollider().getPosition().add(contactNormal);
+                    keepChecking = true;
+                    continue outer;
+                }
             }
         }
         
-        resultPush.set(0, 0, 0);
-
-        // collision response 
-        if (!collidedResponses.isEmpty()) {
-            for (Response response : collidedResponses) {
-                resultPush.add(response.getContactNormal());
-            }
-            player.getCollider().getPosition().add(resultPush);
-        }        
+        resultPush.set(player.getCollider().getPosition());
+        resultPush.sub(playerPreviousPosition);
         
-        // if colliding, fix velocity so the player can 
-        // slide when colliding with walls
-        if (!collidedResponses.isEmpty()) {
-            resultPush.normalize();
-            double dot = resultPush.dot(player.getVelocity());
-            resultPush.scale(dot);
-            player.getVelocity().sub(resultPush);
-        }
-        
-        // update player position
-        player.getCollider().getPosition().add(player.getVelocity());    
+        // if colliding, fix velocity
+        resultPush.normalize();
+        double dot = resultPush.dot(player.getVelocity());
+        resultPush.scale(dot);
+        player.getVelocity().sub(resultPush);
     }
 
     public void draw(Graphics2D g) {

@@ -10,6 +10,7 @@ public class Response {
     private boolean collides;
     private final Vec3 contactPoint = new Vec3();
     private final Vec3 contactNormal = new Vec3();
+    private boolean edge;
 
     public boolean isCollides() {
         return collides;
@@ -25,6 +26,14 @@ public class Response {
 
     public Vec3 getContactNormal() {
         return contactNormal;
+    }
+
+    public boolean isEdge() {
+        return edge;
+    }
+
+    public void setIsEdge(boolean edge) {
+        this.edge = edge;
     }
 
     @Override
